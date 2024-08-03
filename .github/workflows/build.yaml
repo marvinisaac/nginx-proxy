@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       packages: write
     steps:
     - name: Check out
@@ -21,18 +22,16 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile
-
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: name/app
+        images: ghcr.io/marvinisaac/nginx-proxy
         tags: type=semver,pattern={{version}}
 
-    - name: Push package
+    - name: Build and push package
       uses: docker/build-push-action@v6
       with:
+        context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}
